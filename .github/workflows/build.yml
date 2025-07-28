@@ -182,14 +182,15 @@ jobs:
       - name: Push schematics to preview branch
         if: github.event_name == 'pull_request'
         run: |
-          COMMIT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_SHA=${{ github.event.pull_request.head.sha }}
+          COMMIT_SHA_SHORT=${COMMIT_SHA:0:7}
           BRANCH=gh-preview-${{ github.event.pull_request.number }}
           git fetch origin
           git checkout --orphan $BRANCH
           git rm -rf .
-          cp reports/schematics/*.png schematic-${COMMIT_SHA}.png
-          git add schematic-${COMMIT_SHA}.png
-          git commit -m "Add schematic preview for PR #${{ github.event.pull_request.number }}"
+          cp reports/schematics/*.png schematic-${COMMIT_SHA_SHORT}.png
+          git add schematic-${COMMIT_SHA_SHORT}.png
+          git commit -m "Add schematic preview for PR #${{ github.event.pull_request.number }} (${COMMIT_SHA_SHORT})"
           git push -f origin HEAD:$BRANCH
 
 
@@ -211,7 +212,7 @@ jobs:
               issue_number: prNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `📷 **Schematic Preview for PR #${prNumber}**:\n\n![schematic preview](${imageUrl})\n\nCommit: \`${sha}\``
+              body: `**Schematic in commit #${sha}**:\n\n![schematic preview](${imageUrl})`
             });
 
   cleanup:
