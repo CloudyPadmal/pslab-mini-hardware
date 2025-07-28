@@ -182,11 +182,11 @@ jobs:
       - name: Push schematics to preview branch
         if: github.event_name == 'pull_request'
         run: |
+          COMMIT_SHA=$(git rev-parse --short HEAD)
           BRANCH=gh-preview-${{ github.event.pull_request.number }}
           git fetch origin
           git checkout --orphan $BRANCH
           git rm -rf .
-          COMMIT_SHA=$(git rev-parse --short HEAD)
           cp reports/schematics/*.png schematic-${COMMIT_SHA}.png
           git add schematic-${COMMIT_SHA}.png
           git commit -m "Add schematic preview for PR #${{ github.event.pull_request.number }}"
