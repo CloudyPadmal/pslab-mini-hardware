@@ -1,4 +1,4 @@
-name: KiCAD CI with PDF Diff
+name: Build
 
 on:
   pull_request:
@@ -70,6 +70,7 @@ jobs:
             for sch in $(find . -name '*.kicad_sch'); do
               outfile="reports/schematics/$(basename "$sch" .kicad_sch).pdf"
               kicad-cli sch export pdf "$sch" --output "$outfile"
+              pdftoppm "$outfile" "reports/schematics/$(basename "$sch" .kicad_sch)" -png -singlefile
             done
 
             echo "Generating PDFs for layouts ===============================>"
@@ -153,14 +154,47 @@ jobs:
           name: drc-report
           path: reports/drc-report.txt
 
-      - name: Upload schematic PDFs
+      - name: Upload schematics
         uses: actions/upload-artifact@v4
         with:
-          name: schematic-pdfs
-          path: reports/schematics/*.pdf
+          name: schematics
+          path: reports/schematics/*
 
       - name: Upload layout PDFs
         uses: actions/upload-artifact@v4
         with:
           name: layout-pdfs
           path: reports/layouts/*.pdf
+
+
+  pr_comment:
+    name: Post PR Comment
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download schematic images
+        uses: actions/download-artifact@v4
+        with:
+          name: schematics
+          path: report/schematics
+
+      - name: Encode image to base64
+        id: encode
+        run: |
+          IMAGE_PATH="report/schematics/*.png"
+          echo "data=$(base64 -w 0 $IMAGE_PATH)" >> $GITHUB_OUTPUT
+
+      - name: Post comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const imageData = `data:image/png;base64,${{ steps.encode.outputs.data }}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🖼️ Latest schematic:\n\n![Schematic](${imageData})`
+            })
+
+
