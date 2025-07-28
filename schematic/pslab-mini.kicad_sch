@@ -7,7 +7,7 @@
 	(title_block
 		(title "PSLab-Mini")
 		(date "2025-07-16")
-		(rev "0.0.0")
+		(rev "0.0.1")
 	)
 	(lib_symbols
 		(symbol "power:GND"
