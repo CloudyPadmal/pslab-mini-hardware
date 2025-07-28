@@ -31,7 +31,7 @@
 					(hide yes)
 				)
 			)
-			(property "Value" "GND"
+			(property "Value" "GN0D"
 				(at 0 -3.81 0)
 				(effects
 					(font
