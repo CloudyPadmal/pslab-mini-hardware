@@ -183,11 +183,12 @@ jobs:
         if: github.event_name == 'pull_request'
         run: |
           BRANCH=gh-preview-${{ github.event.pull_request.number }}
-          # git fetch origin
+          git fetch origin
           git checkout --orphan $BRANCH
           git rm -rf .
-          cp reports/schematics/*.png schematic.png
-          git add schematic.png
+          COMMIT_SHA=$(git rev-parse --short HEAD)
+          cp reports/schematics/*.png schematic-${COMMIT_SHA}.png
+          git add schematic-${COMMIT_SHA}.png
           git commit -m "Add schematic preview for PR #${{ github.event.pull_request.number }}"
           git push -f origin HEAD:$BRANCH
 
@@ -204,12 +205,13 @@ jobs:
         with:
           script: |
             const prNumber = context.issue.number;
-            const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/gh-preview-${prNumber}/schematic.png`;
+            const sha = context.payload.pull_request.head.sha.substring(0, 7);
+            const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/gh-preview-${prNumber}/schematic-${sha}.png`;
             github.rest.issues.createComment({
               issue_number: prNumber,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `📷 **Schematic Preview for PR #${prNumber}**:\n\n![schematic preview](${imageUrl})`
+              body: `📷 **Schematic Preview for PR #${prNumber}**:\n\n![schematic preview](${imageUrl})\n\nCommit: \`${sha}\``
             });
 
   cleanup:
