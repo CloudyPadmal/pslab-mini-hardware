@@ -170,7 +170,7 @@ jobs:
 
       - name: Set preview branch name
         id: set-output
-        run: echo "branch=gh-preview/${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+        run: echo "branch=gh-preview-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
 
       - name: Configure Git
         run: |
@@ -179,7 +179,7 @@ jobs:
 
       - name: Push schematics to preview branch
         run: |
-          BRANCH=gh-preview/${{ github.event.pull_request.number }}
+          BRANCH=gh-preview-${{ github.event.pull_request.number }}
           # git fetch origin
           git checkout --orphan $BRANCH
           git rm -rf .
@@ -201,7 +201,7 @@ jobs:
         with:
           script: |
             const prNumber = context.issue.number;
-            const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/gh-preview/${prNumber}/schematic.png`;
+            const imageUrl = `https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/gh-preview-${prNumber}/schematic.png`;
             github.rest.issues.createComment({
               issue_number: prNumber,
               owner: context.repo.owner,
