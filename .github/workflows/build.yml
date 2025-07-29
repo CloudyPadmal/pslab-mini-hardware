@@ -186,8 +186,12 @@ jobs:
           COMMIT_SHA_SHORT=${COMMIT_SHA:0:7}
           BRANCH=gh-preview-${{ github.event.pull_request.number }}
           git fetch origin
-          git checkout --orphan $BRANCH
-          find . -type f ! -name 'schematic-*.png' -exec git rm -f --ignore-unmatch {} +
+          if git ls-remote --exit-code --heads origin "$BRANCH"; then
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+          else
+            git checkout --orphan "$BRANCH"
+            git rm -rf .
+          fi
           cp reports/schematics/*.png schematic-${COMMIT_SHA_SHORT}.png
           git add schematic-${COMMIT_SHA_SHORT}.png
           git commit -m "Add schematic preview for PR #${{ github.event.pull_request.number }} (${COMMIT_SHA_SHORT})"
