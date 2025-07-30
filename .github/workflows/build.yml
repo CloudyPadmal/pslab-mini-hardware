@@ -9,7 +9,6 @@ on:
       - '**.kicad_sch'
       - '**.kicad_pcb'
       - '**.kicad_pro'
-      - '.github/workflows/build.yml'
   push:
     branches:
       - main
@@ -17,7 +16,6 @@ on:
       - '**.kicad_sch'
       - '**.kicad_pcb'
       - '**.kicad_pro'
-      - '.github/workflows/build.yml'
 
 jobs:
   build:
