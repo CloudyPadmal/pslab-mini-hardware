@@ -12,32 +12,45 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success'
 
     steps:
-      - name: Download PR number artifact
+      - name: Download workflow artifacts
         uses: actions/github-script@v7
         with:
           script: |
-            let pr_number_artifact = await github.rest.actions.listWorkflowRunArtifacts({
+            let all_artifact = await github.rest.actions.listWorkflowRunArtifacts({
                owner: context.repo.owner,
                repo: context.repo.repo,
                run_id: context.payload.workflow_run.id,
             });
-            let matchArtifact = pr_number_artifact.data.artifacts.filter((artifact) => {
+            let match_pr_number_artifact = all_artifact.data.artifacts.filter((artifact) => {
               return artifact.name == "pr_number"
             })[0];
+            let match_schematic_artifact = all_artifact.data.artifacts.filter((artifact) => {
+              return artifact.name == "schematics"
+            })[0];
 
-            let download = await github.rest.actions.downloadArtifact({
+            const fs = require('fs');
+
+            let download_pr_number = await github.rest.actions.downloadArtifact({
                owner: context.repo.owner,
                repo: context.repo.repo,
-               artifact_id: matchArtifact.id,
+               artifact_id: match_pr_number_artifact.id,
                archive_format: 'zip',
             });
-            const fs = require('fs');
-            fs.writeFileSync('${{ github.workspace }}/pr_number.zip', Buffer.from(download.data));
+            fs.writeFileSync('${{ github.workspace }}/pr_number.zip', Buffer.from(download_pr_number.data));
+
+            let download_schematic = await github.rest.actions.downloadArtifact({
+               owner: context.repo.owner,
+               repo: context.repo.repo,
+               artifact_id: match_schematic_artifact.id,
+               archive_format: 'zip',
+            });
+            fs.writeFileSync('${{ github.workspace }}/schematics.zip', Buffer.from(download_schematic.data));
 
       - name: Unzip artifact
         shell: bash
         run: |
           unzip pr_number.zip
+          unzip schematics.zip
 
       - name: Fetch PR Number
         id: fetch-pr-number
@@ -47,6 +60,30 @@ jobs:
             var fs = require('fs')
             var issue_number = Number(fs.readFileSync('./pr-number.txt'));
             core.setOutput("issue_number", issue_number);
+
+      - name: Upload schematics
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git clone --branch=schematic-previews --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} schematic-previews
+          cd schematic-previews
+
+          for file in ../*.png; do
+            if [[ -f "$file" ]]; then
+              filename=$(basename "$file")
+              cp -f "$file" "./${{ steps.fetch-pr-number.outputs.issue_number }}_${filename}"
+            fi
+          done
+          
+          # Force push to pr-screenshots branch
+          git checkout --orphan temporary
+          git add --all .
+          git commit -am "[Auto] upload schematic previews for #${{ steps.fetch-pr-number.outputs.issue_number }} ($(date +%Y-%m-%d.%H:%M:%S))"
+          git branch -D schematic-previews
+          git branch -m schematic-previews
+          git push --force origin schematic-previews
 
       - name: Comment on PR
         uses: actions/github-script@v7
