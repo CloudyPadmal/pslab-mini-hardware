@@ -65,7 +65,7 @@ jobs:
         run: |
           BRANCH="gh-preview-${{ steps.vars.outputs.pr_number }}"
           COMMIT_SHA_SHORT="${{ steps.vars.outputs.sha_short }}"
-          
+
           # git checkout --orphan $BRANCH_NAME
           if git ls-remote --exit-code --heads origin "$BRANCH"; then
             git checkout -B "$BRANCH" "origin/$BRANCH"
@@ -88,14 +88,10 @@ jobs:
           REPO="${{ steps.vars.outputs.repo }}"
           SHA="${{ steps.vars.outputs.sha_short }}"
           COMMENT="Schematic preview for $SHA"
-
-          for img in ${SHA}-*.png; do
-            RAW_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/${img}"
-            COMMENT+="\n\n**${img}**\n\n![${img}](${RAW_URL})"
-          done
+          COMMENT+="\n\n![schematic-${SHA}](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/gh-preview-${prNumber}/schematic-${sha}.png)"
 
           echo -e "$COMMENT" > comment.txt
-          gh auth login --with-token <<< "$GH_TOKEN"
+          # gh auth login --with-token <<< "$GH_TOKEN"
           gh pr comment ${{ steps.vars.outputs.pr_number }} --body-file comment.txt
 
       - name: Delete preview branch on PR close
@@ -104,5 +100,5 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
-          gh auth login --with-token <<< "$GH_TOKEN"
+          # gh auth login --with-token <<< "$GH_TOKEN"
           gh api -X DELETE /repos/${{ steps.vars.outputs.repo }}/git/refs/heads/$BRANCH_NAME || echo "Branch already deleted"
