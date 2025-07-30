@@ -79,6 +79,8 @@ jobs:
 
       - name: Remove previous preview comments
         if: github.event.action != 'closed'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           SEARCH_STRING="Schematic preview for"
           REPO="${{ steps.vars.outputs.repo }}"
