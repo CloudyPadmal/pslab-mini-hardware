@@ -34,14 +34,6 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
 
-      - name: Create or switch to preview branch
-        if: github.event.action != 'closed'
-        run: |
-          BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
-          git fetch origin $BRANCH_NAME || true
-          git checkout -B $BRANCH_NAME
-          git reset --hard origin/$BRANCH_NAME || true
-
       - name: Get current user id
         id: user
         run: |
@@ -64,13 +56,6 @@ jobs:
               kicad-cli sch export pdf "$sch" --output "$outfile"
               pdftoppm "$outfile" "reports/schematics/$(basename "$sch" .kicad_sch)" -png -singlefile
             done
-
-      - name: Push schematic images to preview branch
-        if: github.event.action != 'closed'
-        run: |
-          git add reports/schematics/*.png
-          git commit -m "schematic preview for ${{ steps.vars.outputs.sha_short }}" || echo "Nothing to commit"
-          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} HEAD
 
       - name: Push schematic images to preview branch
         if: github.event.action != 'closed'
