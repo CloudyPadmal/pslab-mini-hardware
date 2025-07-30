@@ -16,11 +16,20 @@ jobs:
       - name: Expose PR ID
         run: echo "${{ github.event.number }}" > pr-number.txt
 
+      - name: Expose commit SHA
+        run: echo "${{ github.sha }}" > commit-sha.txt
+
       - name: Upload PR ID
         uses: actions/upload-artifact@v4
         with:
           name: pr_number
           path: pr-number.txt
+
+      - name: Upload commit SHA
+        uses: actions/upload-artifact@v4
+        with:
+          name: commit_sha
+          path: commit-sha.txt
 
   build:
     name: Reports and PDF Diffs
