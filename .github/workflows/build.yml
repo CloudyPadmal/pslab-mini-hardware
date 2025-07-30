@@ -193,7 +193,7 @@ jobs:
           
           echo "Setting remote with PAT"
           git remote set-url origin https://CloudyPadmal:${GH_PAT}@github.com/${REPO}.git
-
+          echo $GH_PAT | cut -c1-4
           git remote -v
           git fetch origin
           if git ls-remote --exit-code --heads origin "$BRANCH"; then
