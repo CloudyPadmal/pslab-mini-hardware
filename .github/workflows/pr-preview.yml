@@ -88,14 +88,14 @@ jobs:
 
           for file in ../schematics/*.png; do
             if [[ -f "$file" ]]; then
-              cp -f "$file" "./schematic-${{ steps.fetch-pr-number.outputs.issue_number }}:${{ steps.fetch-commit-sha.outputs.commit_sha }}.png"
+              cp -f "$file" "./schematic-${{ steps.fetch-pr-number.outputs.issue_number }}:${{ steps.fetch-pr-number.outputs.commit_sha }}.png"
             fi
           done
 
           # Force push to schematic-previews branch
           git checkout --orphan temporary
           git add *.png
-          git commit -am "schematic previews for #${{ steps.fetch-pr-number.outputs.issue_number }}:${{ steps.fetch-commit-sha.outputs.commit_sha }}"
+          git commit -am "schematic previews for #${{ steps.fetch-pr-number.outputs.issue_number }}:${{ steps.fetch-pr-number.outputs.commit_sha }}"
           git branch -D schematic-previews
           git branch -m schematic-previews
           git push --force origin schematic-previews
@@ -109,9 +109,9 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            var schematic_links = 'Schematic preview for PR #${issue_number}:${commit_sha}\n
-            ![Schematic Preview](https://raw.githubusercontent.com/${owner}/${repo}/schematic-previews/schematic-${issue_number}:${commit_sha}.png)\n\n';
-
+            var schematic_links = `Schematic preview for PR #${issue_number}:${commit_sha}
+            ![Schematic Preview](https://raw.githubusercontent.com/${owner}/${repo}/schematic-previews/schematic-${issue_number}:${commit_sha}.png)`;
+            
             await github.rest.issues.createComment({
               owner,
               repo,
