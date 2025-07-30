@@ -1,8 +1,10 @@
-name: PR Comment Schematic
+name: Schematic Preview
 
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, closed]
+    paths:
+      - '**.kicad_sch'
 
 permissions:
   contents: write
@@ -18,7 +20,7 @@ jobs:
         run: |
           echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "repo=${{ github.repository }}" >> $GITHUB_OUTPUT
-          echo "sha_short=${{ github.event.pull_request.head.sha::7 }}" >> $GITHUB_OUTPUT
+          echo "sha_short=$(echo '${{ github.event.pull_request.head.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Checkout PR code
         if: github.event.action != 'closed'
