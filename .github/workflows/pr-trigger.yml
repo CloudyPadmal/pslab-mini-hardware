@@ -1,8 +1,10 @@
-name: PR Comment Schematic
+name: Schematic Preview
 
 on:
   pull_request_target:
     types: [opened, synchronize, reopened, closed]
+    paths:
+      - '**.kicad_sch'
 
 permissions:
   contents: write
@@ -18,7 +20,7 @@ jobs:
         run: |
           echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "repo=${{ github.repository }}" >> $GITHUB_OUTPUT
-          echo "sha_short=${{ github.event.pull_request.head.sha::7 }}" >> $GITHUB_OUTPUT
+          echo "sha_short=$(echo '${{ github.event.pull_request.head.sha }}' | cut -c1-7)" >> $GITHUB_OUTPUT
 
       - name: Checkout PR code
         if: github.event.action != 'closed'
@@ -57,9 +59,6 @@ jobs:
               pdftoppm "$outfile" "reports/schematics/$(basename "$sch" .kicad_sch)" -png -singlefile
             done
 
-      - name: List generated preview files
-        run: ls -l reports/schematics || echo "Directory missing"
-
       - name: Push schematic images to preview branch
         if: github.event.action != 'closed'
         run: |
@@ -86,10 +85,17 @@ jobs:
           BRANCH="gh-preview-${{ steps.vars.outputs.pr_number }}"
           REPO="${{ steps.vars.outputs.repo }}"
           SHA="${{ steps.vars.outputs.sha_short }}"
+          SEARCH_STRING="Schematic preview for"
           COMMENT="Schematic preview for $SHA"
           COMMENT+="\n\n![schematic-${SHA}](https://raw.githubusercontent.com/${REPO}/${BRANCH}/schematic-${SHA}.png)"
-
           echo -e "$COMMENT" > comment.txt
+
+          gh api repos/$REPO_NAME/issues/$PR_NUMBER/comments \
+            --paginate --jq ".[] | select(.body | contains(\"$SEARCH_STRING\")) | .id" | while read -r comment_id; do
+              echo "Deleting comment ID: $comment_id"
+              gh api --method DELETE repos/$REPO_NAME/issues/comments/$comment_id
+          done
+          
           gh pr comment ${{ steps.vars.outputs.pr_number }} --repo "${{ github.repository }}" --body-file comment.txt
 
       - name: Delete preview branch on PR close
