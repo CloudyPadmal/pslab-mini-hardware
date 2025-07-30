@@ -184,6 +184,8 @@ jobs:
       - name: Push schematics to preview branch
         if: github.event_name == 'pull_request'
         run: |
+          git config user.name
+          git config user.email
           COMMIT_SHA=${{ github.event.pull_request.head.sha }}
           COMMIT_SHA_SHORT=${COMMIT_SHA:0:7}
           BRANCH=gh-preview-${{ github.event.pull_request.number }}
