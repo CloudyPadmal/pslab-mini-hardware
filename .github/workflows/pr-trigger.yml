@@ -18,7 +18,7 @@ jobs:
         run: |
           echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "repo=${{ github.repository }}" >> $GITHUB_OUTPUT
-          echo "sha_short=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+          echo "sha_short=${{ github.event.pull_request.head.sha::7 }}" >> $GITHUB_OUTPUT
 
       - name: Checkout PR code
         if: github.event.action != 'closed'
@@ -87,7 +87,7 @@ jobs:
           REPO="${{ steps.vars.outputs.repo }}"
           SHA="${{ steps.vars.outputs.sha_short }}"
           COMMENT="Schematic preview for $SHA"
-          COMMENT+="\n\n![schematic-${SHA}](https://raw.githubusercontent.com/CloudyPadmal/${REPO}/${BRANCH}/schematic-${SHA}.png)"
+          COMMENT+="\n\n![schematic-${SHA}](https://raw.githubusercontent.com/${REPO}/${BRANCH}/schematic-${SHA}.png)"
 
           echo -e "$COMMENT" > comment.txt
           gh pr comment ${{ steps.vars.outputs.pr_number }} --repo "${{ github.repository }}" --body-file comment.txt
