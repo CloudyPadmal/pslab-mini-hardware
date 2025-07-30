@@ -57,19 +57,27 @@ jobs:
               pdftoppm "$outfile" "reports/schematics/$(basename "$sch" .kicad_sch)" -png -singlefile
             done
 
+      - name: List generated preview files
+        run: ls -l reports/schematics || echo "Directory missing"
+
       - name: Push schematic images to preview branch
         if: github.event.action != 'closed'
         run: |
-          BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
-          mkdir clean && cp reports/schematics/*.png clean/
-          git checkout --orphan $BRANCH_NAME
-          git rm -rf . || true
-          rm -rf * .[^.]* || true
-          mv clean/*.png .
-          rm -rf clean
-          git add *.png
+          BRANCH="gh-preview-${{ steps.vars.outputs.pr_number }}"
+          COMMIT_SHA_SHORT="${{ steps.vars.outputs.sha_short }}"
+          
+          # git checkout --orphan $BRANCH_NAME
+          if git ls-remote --exit-code --heads origin "$BRANCH"; then
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+          else
+            git checkout --orphan "$BRANCH"
+            git rm -rf .
+          fi
+
+          cp reports/schematics/*.png schematic-${COMMIT_SHA_SHORT}.png
+          git add schematic-${COMMIT_SHA_SHORT}.png
           git commit -m "schematic preview for ${{ steps.vars.outputs.sha_short }}"
-          git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} $BRANCH_NAME
+          git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} $BRANCH
 
       - name: Comment with preview images
         if: github.event.action != 'closed'
