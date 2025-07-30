@@ -6,10 +6,10 @@ on:
 
 permissions:
   contents: write
-  pull-requests: read
+  pull-requests: write
 
 jobs:
-  manage-preview-branch:
+  pr-preview:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,8 +18,9 @@ jobs:
         run: |
           echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
           echo "repo=${{ github.repository }}" >> $GITHUB_OUTPUT
+          echo "sha_short=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
-      - name: Checkout PR code (only if not closing)
+      - name: Checkout PR code
         if: github.event.action != 'closed'
         uses: actions/checkout@v4
         with:
@@ -33,16 +34,82 @@ jobs:
           git config --global user.email "action@github.com"
           git config --global user.name "GitHub Action"
 
-      - name: Create or update preview branch
+      - name: Create or switch to preview branch
         if: github.event.action != 'closed'
         run: |
           BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
-          git checkout -b $BRANCH_NAME
-          git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} $BRANCH_NAME
+          git fetch origin $BRANCH_NAME || true
+          git checkout -B $BRANCH_NAME
+          git reset --hard origin/$BRANCH_NAME || true
 
-      - name: Delete preview branch on close
-        if: github.event.action == 'closed'
+      - name: Get current user id
+        id: user
+        run: |
+          echo "uid=$(id -u)" >> $GITHUB_OUTPUT
+          echo "gid=$(id -g)" >> $GITHUB_OUTPUT
+
+      - name: Generate schematic PDFs
+        uses: addnab/docker-run-action@v3
+        with:
+          image: cloudypadmal/pslab-mini-kicad:1.0.0
+          options: >-
+            -v ${{ github.workspace }}:/workspace
+            -w /workspace
+            --user ${{ steps.user.outputs.uid }}:${{ steps.user.outputs.gid }}
+          run: |
+            export HOME=/workspace
+            mkdir -p reports/schematics
+            for sch in $(find . -name '*.kicad_sch'); do
+              outfile="reports/schematics/$(basename "$sch" .kicad_sch).pdf"
+              kicad-cli sch export pdf "$sch" --output "$outfile"
+              pdftoppm "$outfile" "reports/schematics/$(basename "$sch" .kicad_sch)" -png -singlefile
+            done
+
+      - name: Push schematic images to preview branch
+        if: github.event.action != 'closed'
+        run: |
+          git add reports/schematics/*.png
+          git commit -m "schematic preview for ${{ steps.vars.outputs.sha_short }}" || echo "Nothing to commit"
+          git push https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} HEAD
+
+      - name: Push schematic images to preview branch
+        if: github.event.action != 'closed'
         run: |
           BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
-          gh auth login --with-token <<< "${{ secrets.GH_PAT }}"
-          gh api -X DELETE /repos/${{ steps.vars.outputs.repo }}/git/refs/heads/$BRANCH_NAME
+          mkdir clean && cp reports/schematics/*.png clean/
+          git checkout --orphan $BRANCH_NAME
+          git rm -rf . || true
+          rm -rf * .[^.]* || true
+          mv clean/*.png .
+          rm -rf clean
+          git add *.png
+          git commit -m "schematic preview for ${{ steps.vars.outputs.sha_short }}"
+          git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} $BRANCH_NAME
+
+      - name: Comment with preview images
+        if: github.event.action != 'closed'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          BRANCH="gh-preview-${{ steps.vars.outputs.pr_number }}"
+          REPO="${{ steps.vars.outputs.repo }}"
+          SHA="${{ steps.vars.outputs.sha_short }}"
+          COMMENT="Schematic preview for $SHA"
+
+          for img in ${SHA}-*.png; do
+            RAW_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/${img}"
+            COMMENT+="\n\n**${img}**\n\n![${img}](${RAW_URL})"
+          done
+
+          echo -e "$COMMENT" > comment.txt
+          gh auth login --with-token <<< "$GH_TOKEN"
+          gh pr comment ${{ steps.vars.outputs.pr_number }} --body-file comment.txt
+
+      - name: Delete preview branch on PR close
+        if: github.event.action == 'closed'
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
+          gh auth login --with-token <<< "$GH_TOKEN"
+          gh api -X DELETE /repos/${{ steps.vars.outputs.repo }}/git/refs/heads/$BRANCH_NAME || echo "Branch already deleted"
