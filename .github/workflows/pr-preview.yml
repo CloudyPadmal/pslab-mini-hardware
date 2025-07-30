@@ -102,19 +102,22 @@ jobs:
 
       - name: Comment on PR with schematics
         uses: actions/github-script@v7
+        env:
+          issue_number: ${{ steps.fetch-pr-number.outputs.issue_number }}
+          commit_sha: ${{ steps.fetch-pr-number.outputs.commit_sha }}
         with:
           script: |
-            var issue_number = ${{ steps.fetch-pr-number.outputs.issue_number }};
-            var commit_sha = ${{ steps.fetch-pr-number.outputs.commit_sha }};
+            const issue_number = process.env.issue_number;
+            const commit_sha = process.env.commit_sha;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
 
-            var schematic_links = `Schematic preview for PR #${issue_number}:${commit_sha}
+            const schematic_links = `Schematic preview for PR #${issue_number}:${commit_sha}
             ![Schematic Preview](https://raw.githubusercontent.com/${owner}/${repo}/schematic-previews/schematic-${issue_number}:${commit_sha}.png)`;
-            
+
             await github.rest.issues.createComment({
               owner,
               repo,
-              issue_number,
+              issue_number: Number(issue_number),
               body: schematic_links
             });
