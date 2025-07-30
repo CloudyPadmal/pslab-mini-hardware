@@ -1,0 +1,48 @@
+name: PR Comment Schematic
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  manage-preview-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set variables
+        id: vars
+        run: |
+          echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "repo=${{ github.repository }}" >> $GITHUB_OUTPUT
+
+      - name: Checkout PR code (only if not closing)
+        if: github.event.action != 'closed'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Set up Git user
+        if: github.event.action != 'closed'
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+
+      - name: Create or update preview branch
+        if: github.event.action != 'closed'
+        run: |
+          BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
+          git checkout -b $BRANCH_NAME
+          git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} $BRANCH_NAME
+
+      - name: Delete preview branch on close
+        if: github.event.action == 'closed'
+        run: |
+          BRANCH_NAME="gh-preview-${{ steps.vars.outputs.pr_number }}"
+          gh auth login --with-token <<< "${{ secrets.GH_PAT }}"
+          gh api -X DELETE /repos/${{ steps.vars.outputs.repo }}/git/refs/heads/$BRANCH_NAME
