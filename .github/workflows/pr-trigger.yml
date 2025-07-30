@@ -88,7 +88,7 @@ jobs:
           REPO="${{ steps.vars.outputs.repo }}"
           SHA="${{ steps.vars.outputs.sha_short }}"
           COMMENT="Schematic preview for $SHA"
-          COMMENT+="\n\n![schematic-${SHA}](https://raw.githubusercontent.com/${context.repo.owner}/${context.repo.repo}/gh-preview-${prNumber}/schematic-${sha}.png)"
+          COMMENT+="\n\n![schematic-${SHA}](https://raw.githubusercontent.com/CloudyPadmal/${REPO}/${BRANCH}/schematic-${SHA}.png)"
 
           echo -e "$COMMENT" > comment.txt
           # gh auth login --with-token <<< "$GH_TOKEN"
