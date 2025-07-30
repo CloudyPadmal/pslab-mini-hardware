@@ -24,6 +24,9 @@ jobs:
     name: Reports and PDF Diffs
     if: github.event.action != 'closed'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
 
     steps:
       - name: Checkout current branch
@@ -170,11 +173,6 @@ jobs:
           name: layout-pdfs
           path: reports/layouts/*.pdf
 
-      - name: Set preview branch name
-        if: github.event_name == 'pull_request'
-        id: set-output
-        run: echo "branch=gh-preview-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-
       - name: Configure Git
         if: github.event_name == 'pull_request'
         run: |
@@ -189,7 +187,9 @@ jobs:
           COMMIT_SHA=${{ github.event.pull_request.head.sha }}
           COMMIT_SHA_SHORT=${COMMIT_SHA:0:7}
           BRANCH=gh-preview-${{ github.event.pull_request.number }}
-          git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
+          # git remote set-url origin https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}
+          git remote set-url origin https://CloudyPadmal:${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
+          git remote -v
           git fetch origin
           if git ls-remote --exit-code --heads origin "$BRANCH"; then
             git checkout -B "$BRANCH" "origin/$BRANCH"
