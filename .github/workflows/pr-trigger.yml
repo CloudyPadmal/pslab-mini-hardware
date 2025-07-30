@@ -11,7 +11,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  pr-preview:
+  comment-schematic-preview:
     runs-on: ubuntu-latest
 
     steps:
@@ -77,6 +77,17 @@ jobs:
           git commit -m "schematic preview for ${{ steps.vars.outputs.sha_short }}"
           git push -f https://x-access-token:${{ secrets.GH_PAT }}@github.com/${{ steps.vars.outputs.repo }} $BRANCH
 
+      - name: Remove previous preview comments
+        if: github.event.action != 'closed'
+        run: |
+          SEARCH_STRING="Schematic preview for"
+          REPO="${{ steps.vars.outputs.repo }}"
+          gh api repos/$REPO/issues/${{ steps.vars.outputs.pr_number }}/comments \
+            --paginate --jq ".[] | select(.body | contains(\"$SEARCH_STRING\")) | .id" | while read -r comment_id; do
+              echo "Deleting comment ID: $comment_id"
+              gh api --method DELETE repos/$REPO/issues/comments/$comment_id
+          done
+
       - name: Comment with preview images
         if: github.event.action != 'closed'
         env:
@@ -89,12 +100,6 @@ jobs:
           COMMENT="Schematic preview for $SHA"
           COMMENT+="\n\n![schematic-${SHA}](https://raw.githubusercontent.com/${REPO}/${BRANCH}/schematic-${SHA}.png)"
           echo -e "$COMMENT" > comment.txt
-
-          gh api repos/$REPO_NAME/issues/$PR_NUMBER/comments \
-            --paginate --jq ".[] | select(.body | contains(\"$SEARCH_STRING\")) | .id" | while read -r comment_id; do
-              echo "Deleting comment ID: $comment_id"
-              gh api --method DELETE repos/$REPO_NAME/issues/comments/$comment_id
-          done
           
           gh pr comment ${{ steps.vars.outputs.pr_number }} --repo "${{ github.repository }}" --body-file comment.txt
 
