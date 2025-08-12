@@ -114,7 +114,7 @@ jobs:
             const repo = context.repo.repo;
 
             const schematic_links = `<details>
-              <summary>Schematic Preview for <tt>#${commit_sha}</tt></summary>
+              <summary>Schematic Preview for <tt>${commit_sha}</tt></summary>
               <table>
                 <tr>
                   <th>Schematic</th>
