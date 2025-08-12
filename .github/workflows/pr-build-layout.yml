@@ -56,7 +56,7 @@ jobs:
             --user ${{ steps.user.outputs.uid }}:${{ steps.user.outputs.gid }}
           run: |
             export HOME=/workspace
-            mkdir -p reports/schematics reports/layouts
+            mkdir -p reports/layouts
             rm -rf parent-repo
 
             echo "Running DRC ===============================================>"
@@ -149,4 +149,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: layouts
-          path: reports/layouts/*.pdf
+          path: reports/layouts/*
