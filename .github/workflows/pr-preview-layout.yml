@@ -167,5 +167,5 @@ jobs:
               owner,
               repo,
               issue_number: Number(issue_number),
-              body: schematic_links
+              body: layout_links
             });
