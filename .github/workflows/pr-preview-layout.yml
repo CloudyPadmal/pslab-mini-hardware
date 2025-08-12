@@ -114,51 +114,59 @@ jobs:
             const repo = context.repo.repo;
 
             const layout_links = `<details>
-              <summary>Layout Previews for <tt>#${commit_sha}</tt></summary>
+              <summary>Layout Previews for <tt>${commit_sha}</tt></summary>
               <table>
                 <tr>
                   <th>Front Copper</th>
                   <th>Front Silk</th>
-                  <th>Front Mask</th>
                 </tr>
                 <tr>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Cu-${issue_number}:${commit_sha}.png" alt="Front Copper" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.SilkS-${issue_number}:${commit_sha}.png" alt="Front Silk" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Mask-${issue_number}:${commit_sha}.png" alt="Front Mask" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Cu-${issue_number}:${commit_sha}.png" alt="Front Copper" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.SilkS-${issue_number}:${commit_sha}.png" alt="Front Silk" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
                 </tr>
                 <tr>
                   <th>Bottom Copper</th>
                   <th>Bottom Silk</th>
+                </tr>
+                <tr>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Cu-${issue_number}:${commit_sha}.png" alt="Bottom Copper" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.SilkS-${issue_number}:${commit_sha}.png" alt="Bottom Silk" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                </tr>
+                <tr>
+                  <th>Front Mask</th>
                   <th>Bottom Mask</th>
                 </tr>
                 <tr>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Cu-${issue_number}:${commit_sha}.png" alt="Bottom Copper" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.SilkS-${issue_number}:${commit_sha}.png" alt="Bottom Silk" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Mask-${issue_number}:${commit_sha}.png" alt="Bottom Mask" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Mask-${issue_number}:${commit_sha}.png" alt="Front Mask" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Mask-${issue_number}:${commit_sha}.png" alt="Bottom Mask" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
                 </tr>
               </table>
             </details><details>
-              <summary>Diff Previews for <tt>#${commit_sha}</tt></summary>
+              <summary>Diff Previews for <tt>${commit_sha}</tt></summary>
               <table>
                 <tr>
                   <th>Front Copper Diff</th>
                   <th>Front Silk Diff</th>
-                  <th>Front Mask Diff</th>
                 </tr>
                 <tr>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Cu-diff-${issue_number}:${commit_sha}.png" alt="Front Copper Diff" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.SilkS-diff-${issue_number}:${commit_sha}.png" alt="Front Silk Diff" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Mask-diff-${issue_number}:${commit_sha}.png" alt="Front Mask Diff" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Cu-diff-${issue_number}:${commit_sha}.png" alt="Front Copper Diff" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.SilkS-diff-${issue_number}:${commit_sha}.png" alt="Front Silk Diff" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
                 </tr>
                 <tr>
                   <th>Bottom Copper Diff</th>
                   <th>Bottom Silk Diff</th>
+                </tr>
+                <tr>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Cu-diff-${issue_number}:${commit_sha}.png" alt="Bottom Copper Diff" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.SilkS-diff-${issue_number}:${commit_sha}.png" alt="Bottom Silk Diff" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                </tr>
+                <tr>
+                  <th>Front Mask Diff</th>
                   <th>Bottom Mask Diff</th>
                 </tr>
                 <tr>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Cu-diff-${issue_number}:${commit_sha}.png" alt="Bottom Copper Diff" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.SilkS-diff-${issue_number}:${commit_sha}.png" alt="Bottom Silk Diff" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
-                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Mask-diff-${issue_number}:${commit_sha}.png" alt="Bottom Mask Diff" width="300" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-F.Mask-diff-${issue_number}:${commit_sha}.png" alt="Front Mask Diff" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
+                  <td><img src="https://raw.githubusercontent.com/${owner}/${repo}/layout-previews/layout-B.Mask-diff-${issue_number}:${commit_sha}.png" alt="Bottom Mask Diff" width="500" style="margin: 10px; cursor: pointer;" onclick="window.open(this.src, '_blank');"></td>
                 </tr>
               </table>
             </details>`;
