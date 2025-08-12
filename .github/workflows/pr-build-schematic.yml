@@ -73,7 +73,7 @@ jobs:
             for sch in $(find . -name '*.kicad_sch'); do
               outfile="reports/schematics/$(basename "$sch" .kicad_sch).pdf"
               kicad-cli sch export pdf "$sch" --output "$outfile"
-              pdftoppm "$outfile" "reports/schematics/$(basename "$sch" .kicad_sch)-schematic" -png -singlefile
+              pdftoppm "$outfile" "reports/schematics/$(basename "$outfile" .pdf)-schematic" -png -singlefile
             done
 
             echo "Fetching parent repository ================================"
