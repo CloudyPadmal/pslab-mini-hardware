@@ -80,6 +80,7 @@ jobs:
                   --layers "$layer" \
                   --black-and-white \
                   --include-border-title
+                pdftoppm "$outfile" "reports/layouts/$(basename "$outfile" .pdf)" -png -singlefile
               done
               mirror_layers="B.Cu B.SilkS B.Mask"
               for layer in $mirror_layers; do
@@ -90,6 +91,7 @@ jobs:
                   --black-and-white \
                   --mirror \
                   --include-border-title
+                pdftoppm "$outfile" "reports/layouts/$(basename "$outfile" .pdf)" -png -singlefile
               done
             done
 
@@ -107,11 +109,10 @@ jobs:
                   --layers "$layer" \
                   --black-and-white \
                   --include-border-title
-                pdftoppm "$outfile" "reports/layouts/$(basename "$pcb" .kicad_pcb)" -png -singlefile
               done
               mirror_layers="B.Cu B.SilkS B.Mask"
               for layer in $mirror_layers; do
-                outfile="${base_name}-${layer}.pdf"
+                outfile="${base_name}-${layer}-old.pdf"
                 kicad-cli pcb export pdf "$pcb" \
                   --output "$outfile" \
                   --layers "$layer" \
