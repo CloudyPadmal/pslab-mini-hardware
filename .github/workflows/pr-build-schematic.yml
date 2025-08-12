@@ -56,7 +56,7 @@ jobs:
             --user ${{ steps.user.outputs.uid }}:${{ steps.user.outputs.gid }}
           run: |
             export HOME=/workspace
-            mkdir -p reports/schematics reports/layouts
+            mkdir -p reports/schematics
             rm -rf parent-repo
 
             echo "Running ERC ===============================================>"
