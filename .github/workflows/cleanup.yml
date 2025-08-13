@@ -70,7 +70,6 @@ jobs:
 
       - name: Clean layout-previews branch
         run: |
-          cd layout-previews
           echo "$open_prs" | tr ' ' '\n' > /tmp/open_prs.txt
 
           for f in $(find . -type f -not -path "./.git/*"); do
