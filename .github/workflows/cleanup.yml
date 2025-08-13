@@ -91,8 +91,8 @@ jobs:
           done
 
           cp layout-previews/*.png . 2>/dev/null || true
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
+          git config user.name "actions-cleanup[bot]"
+          git config user.email "actions-cleanup[bot]@users.noreply.github.com"
           git checkout --orphan temp-clean
           git rm -rf . > /dev/null 2>&1 || true
           git add *.png 2>/dev/null || true
