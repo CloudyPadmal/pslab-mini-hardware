@@ -33,7 +33,7 @@ jobs:
           echo "$open_prs" | tr ' ' '\n' > /tmp/open_prs.txt
 
           for f in $(find . -type f -not -path "./.git/*"); do
-            if [[ $f =~ schematic-([0-9]+):[a-f0-9]+\.png ]]; then
+            if [[ $f =~ schematic-.*-([0-9]+):[a-f0-9]+\.png ]]; then
               prnum="${BASH_REMATCH[1]}"
               if ! grep -q "^$prnum$" /tmp/open_prs.txt; then
                 if [[ -e "$f" || -L "$f" ]]; then
