@@ -133,7 +133,23 @@ jobs:
               if [ -f "$old_pdf" ] && [ -f "$current_pdf" ]; then
                 echo "Creating PDF diff for $base_name"
                 xvfb-run diff-pdf --output-diff="$diff_pdf" -g "$old_pdf" "$current_pdf"
-                pdftoppm "$diff_pdf" "reports/layouts/${base_name}-diff" -png -singlefile
+                check_blank_diff=$(gs -o - -sDEVICE=inkcov "$diff_pdf" \
+                | awk '
+                    /^Page/ {page=$2}
+                    /^[[:space:]]*[0-9.]+/ {
+                        c=$1; m=$2; y=$3; k=$4;
+                        threshold=0.00001;
+                        if (c < threshold && m < threshold && y < threshold && k < threshold) {
+                            print page
+                        }
+                    }
+                ')
+                if [ ! -n "$check_blank_diff" ]; then
+                  echo "No differences found in $current_pdf"
+                  rm -f "$diff_pdf"
+                else
+                  pdftoppm "$diff_pdf" "reports/layouts/${base_name}-diff" -png -singlefile
+                fi
                 rm -rf "$old_pdf"
               else
                 echo "No PDF found for ${base_name}"
